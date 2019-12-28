@@ -12,12 +12,21 @@
 package school.kmeans;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class MainClass {
 
     public static void main(String[] args) throws IOException {
+        System.out.println("Please choose features with comma(1 2 3 4): Example = 1,3,4");
+        Scanner scanner = new Scanner(System.in);
+        String inputString = scanner.nextLine();
+        String[] splited = inputString.trim().split(",");
+        int[] selectedFeatures = new int[splited.length];
+        for (int i = 0; i < splited.length; i++) {
+            selectedFeatures[i] = Integer.parseInt(splited[i]) - 1;
+        }
         KMeans kMeans = new KMeans();
-        kMeans.openFile(args[0]);
+        kMeans.openFile(args[0], selectedFeatures);
         kMeans.calculateKMeans(2);
         kMeans.calculateKMeans(3);
         kMeans.calculateKMeans(4);

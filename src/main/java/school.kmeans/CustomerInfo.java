@@ -18,17 +18,14 @@ import lombok.Data;
 @AllArgsConstructor
 public class CustomerInfo {
 
-    private double gender;
-    private double age;
-    private double annualIncome;
-    private double spendingScore;
+    private double[] features;
     private int cluster;
 
     public CustomerInfo(CustomerInfo customerInfo) {
-        this.gender = customerInfo.getGender();
-        this.age = customerInfo.getAge();
-        this.annualIncome = customerInfo.getAnnualIncome();
-        this.spendingScore = customerInfo.getSpendingScore();
+        int size = customerInfo.getFeatures().length;
+        features = new double[size];
+        System.arraycopy(customerInfo.getFeatures(), 0, features, 0, size);
+        this.cluster = customerInfo.getCluster();
     }
 
 }

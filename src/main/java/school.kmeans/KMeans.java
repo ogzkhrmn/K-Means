@@ -13,28 +13,27 @@ package school.kmeans;
 
 import com.opencsv.CSVReader;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class KMeans {
 
     private List<CustomerInfo> list = new ArrayList<>();
-    List<CustomerInfo> randomInfos = new ArrayList<>();
+    private List<CustomerInfo> randomInfos = new ArrayList<>();
+    private int featureSize;
 
-    public List<CustomerInfo> openFile(String path) throws IOException {
+    public void openFile(String path, int[] features) {
+        featureSize = features.length;
         try (Reader reader = Files.newBufferedReader(Paths.get(path)); CSVReader csvReader = new CSVReader(reader)) {
             String[] nextRecord;
             while ((nextRecord = csvReader.readNext()) != null) {
-                CustomerInfo customerInfo =
-                    new CustomerInfo(Double.parseDouble(nextRecord[0]), Double.parseDouble(nextRecord[1]), Double.parseDouble(nextRecord[2]),
-                        Double.parseDouble(nextRecord[3]), -1);
+                double[] selectedFeatures = new double[features.length];
+                for (int i = 0; i < features.length; i++) {
+                    selectedFeatures[i] = Double.parseDouble(nextRecord[features[i]]);
+                }
+                CustomerInfo customerInfo = new CustomerInfo(selectedFeatures, -1);
                 list.add(customerInfo);
             }
         } catch (Exception e) {
@@ -47,7 +46,6 @@ public class KMeans {
             randomInfos.add(new CustomerInfo(list.get(selected)));
             list.get(selected).setCluster(i);
         }
-        return list;
     }
 
     public void calculateKMeans(int k) {
@@ -66,10 +64,10 @@ public class KMeans {
                     // Gets selected cluster
                     CustomerInfo clusterInfo = randomInfos.get(j);
                     //Calculate euclidean distance
-                    double newDistance = Math.pow(customerInfoSelected.getAge() - clusterInfo.getAge(), 2) +
-                        Math.pow(customerInfoSelected.getAnnualIncome() - clusterInfo.getAnnualIncome(), 2) +
-                        Math.pow(customerInfoSelected.getGender() - clusterInfo.getGender(), 2) +
-                        Math.pow(customerInfoSelected.getSpendingScore() - clusterInfo.getSpendingScore(), 2);
+                    double newDistance = 0;
+                    for (int i = 0; i < customerInfoSelected.getFeatures().length; i++) {
+                        newDistance += Math.pow(customerInfoSelected.getFeatures()[i] - clusterInfo.getFeatures()[i], 2);
+                    }
                     // Check if new distance smaller
                     // If smaller change selected cluster and distance
                     // If not do nothing
@@ -96,23 +94,19 @@ public class KMeans {
     }
 
     private void calculateNewPoint(Map<Integer, List<CustomerInfo>> indexClusterMap, int i) {
-        double genderDistance = 0;
-        double ageDistance = 0;
-        double salaryDistance = 0;
-        double spendingDistance = 0;
+        double[] distances = new double[featureSize];
+        Arrays.fill(distances, 0);
         // Find total distance between selected cluster and cluster's dataset.
         for (CustomerInfo customerInfo : indexClusterMap.get(i)) {
-            genderDistance += customerInfo.getGender();
-            ageDistance += customerInfo.getAge();
-            salaryDistance += customerInfo.getAnnualIncome();
-            spendingDistance += customerInfo.getSpendingScore();
+            for (int j = 0; j < featureSize; j++) {
+                distances[j] += customerInfo.getFeatures()[j];
+            }
         }
         // set new point of cluster.
         int size = indexClusterMap.get(i).size();
-        randomInfos.get(i).setGender(genderDistance / size);
-        randomInfos.get(i).setAge(ageDistance / size);
-        randomInfos.get(i).setAnnualIncome(salaryDistance / size);
-        randomInfos.get(i).setSpendingScore(spendingDistance / size);
+        for (int j = 0; j < featureSize; j++) {
+            randomInfos.get(i).getFeatures()[j] = (distances[j] / size);
+        }
     }
 
     private void calculateMinSquareError(Map<Integer, List<CustomerInfo>> indexClusterMap, int k) {
@@ -121,10 +115,9 @@ public class KMeans {
         for (int i = 0; i < k; i++) {
             // Find total distance between selected cluster and cluster's dataset and add to mse.
             for (CustomerInfo customerInfo : indexClusterMap.get(i)) {
-                mse += Math.pow(customerInfo.getAge() - randomInfos.get(i).getAge(), 2) +
-                    Math.pow(customerInfo.getAnnualIncome() - randomInfos.get(i).getAnnualIncome(), 2) +
-                    Math.pow(customerInfo.getGender() - randomInfos.get(i).getGender(), 2) +
-                    Math.pow(customerInfo.getSpendingScore() - randomInfos.get(i).getSpendingScore(), 2);
+                for (int j = 0; j < featureSize; j++) {
+                    mse += Math.pow(customerInfo.getFeatures()[j] - randomInfos.get(i).getFeatures()[j], 2);
+                }
             }
         }
         System.out.printf("%.2f \t", mse);
