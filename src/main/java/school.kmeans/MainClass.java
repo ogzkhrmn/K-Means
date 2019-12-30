@@ -27,15 +27,20 @@ public class MainClass {
         }
         KMeans kMeans = new KMeans();
         kMeans.openFile(args[0], selectedFeatures);
-        kMeans.calculateKMeans(2);
-        kMeans.calculateKMeans(3);
-        kMeans.calculateKMeans(4);
-        kMeans.calculateKMeans(5);
-        kMeans.calculateKMeans(6);
-        kMeans.calculateKMeans(7);
-        kMeans.calculateKMeans(8);
-        kMeans.calculateKMeans(9);
-        kMeans.calculateKMeans(10);
+
+        double mse1 = kMeans.calculateKMeans(2);
+        int selected = 2;
+        double difference = 0;
+        double mse2;
+        for (int i = 3; i <= 10; i++) {
+            mse2 = kMeans.calculateKMeans(i);
+            if (mse1 - mse2 > difference) {
+                difference = mse1 - mse2;
+                selected = i;
+            }
+            mse1 = mse2;
+        }
+        System.out.println("Best number of cluster = " + selected);
     }
 
 }

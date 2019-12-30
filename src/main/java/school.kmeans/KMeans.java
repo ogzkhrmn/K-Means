@@ -48,7 +48,7 @@ public class KMeans {
         }
     }
 
-    public void calculateKMeans(int k) {
+    public double calculateKMeans(int k) {
         boolean changed = false;
         Map<Integer, List<CustomerInfo>> indexClusterMap = new HashMap<>();
         while (!changed) {
@@ -90,7 +90,7 @@ public class KMeans {
                 }
             }
         }
-        calculateMinSquareError(indexClusterMap, k);
+        return calculateMinSquareError(indexClusterMap, k);
     }
 
     private void calculateNewPoint(Map<Integer, List<CustomerInfo>> indexClusterMap, int i) {
@@ -109,7 +109,7 @@ public class KMeans {
         }
     }
 
-    private void calculateMinSquareError(Map<Integer, List<CustomerInfo>> indexClusterMap, int k) {
+    private double calculateMinSquareError(Map<Integer, List<CustomerInfo>> indexClusterMap, int k) {
         double mse = 0;
         // Finds all errors.
         for (int i = 0; i < k; i++) {
@@ -121,5 +121,6 @@ public class KMeans {
             }
         }
         System.out.printf("%.2f \t", mse);
+        return mse;
     }
 }
