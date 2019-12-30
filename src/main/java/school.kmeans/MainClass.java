@@ -19,9 +19,6 @@ import org.jfree.chart.ui.ApplicationFrame;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.RefineryUtilities;
 
-import javax.swing.*;
-
-import java.awt.*;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -84,6 +81,7 @@ public class MainClass extends ApplicationFrame {
             mse1 = mse2;
             dataset.addValue( mse1 , "mse" , i +"" );
         }
+        System.out.println("Best number of cluster = " + selected);
         return dataset;
     }
 
